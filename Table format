@@ -1,0 +1,22 @@
+// Action table
+state character ACTION_LETTER|optionalParameters // there is always "|" sign after ACTION_LETTER
+.
+.
+.
+%X%X%X%X%X
+// NewState table
+fromState character toState
+.
+.
+.
+%X%X%X%X%X
+// Sync characters
+c1 c2 c3 ...
+
+--------------------------------------------------------------END
+state - int
+character - final character
+ACTION_LETTERS:
+  A - accept() // no parameters
+  R - reduce(production) parameters: <leftCharacter>=<Character1>...someNonFinalCharacter...<CharacterN> // reduction that needs to be done
+  M = move(state) parameters: state // state to move to the stack
