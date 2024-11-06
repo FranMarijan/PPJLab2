@@ -1,9 +1,8 @@
-import javax.xml.transform.stax.StAXResult;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.*;
 
-public class GSA2 {
+public class GSA {
     public static ArrayList<String> nonFinalChars = new ArrayList<>();
     public static ArrayList<String> finalChars = new ArrayList<>();
     public static ArrayList<String> syncChars = new ArrayList<>();
@@ -113,7 +112,7 @@ public class GSA2 {
                     ArrayList<String> currentRightSide = productions.get(split[0]).get(Integer.parseInt(split[1]));
                     if((Integer.parseInt(split[2]) == currentRightSide.size()) || currentRightSide.get(0).equals("$")){// todo epsilon
                         if(split[0].equals(FIRST_NONFINAL_CHAR)){
-                            System.out.println(i + " " + END_OF_LINE_CHAR + " A|");
+                            //System.out.println(i + " " + END_OF_LINE_CHAR + " A|");
                             Actions.put(i + " " + END_OF_LINE_CHAR, " A|");
                         }
                         else{
@@ -125,23 +124,23 @@ public class GSA2 {
                                 //System.out.println((i + " " + character + " R|" + split[0] + "=" + sb.toString()));
                                 if(Actions.containsKey(i + " " + character)){
                                     if(Actions.get(i + " " + character).contains("M|")) {
-                                        System.err.println("Reduction: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()) + " was not accepted because there was move action: " + Actions.get(i + " " + character));
+                                        //System.err.println("Reduction: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()) + " was not accepted because there was move action: " + Actions.get(i + " " + character));
                                         continue;
                                     }
                                     for(String prodInOrder : productionsInOrder){
                                         if(prodInOrder.contains(Actions.get(i + " " + character))) {
-                                            System.err.println("Reduction: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()) + " was not accepted because there was reduction action: " + Actions.get(i + " " + character));
+                                            //System.err.println("Reduction: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()) + " was not accepted because there was reduction action: " + Actions.get(i + " " + character));
                                             break;
                                         }
                                         else if(prodInOrder.contains(Actions.get(split[0] + "=" + sb.toString()))){
-                                            System.err.println("Reduction: " + Actions.get(i + " " + character) + " was removed because there is new reduction action: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()));
+                                            //System.err.println("Reduction: " + Actions.get(i + " " + character) + " was removed because there is new reduction action: " + (i + " " + character + " R|" + split[0] + "=" + sb.toString()));
                                             Actions.put(i + " " + character + " R|", split[0] + "=" + sb.toString());
                                             break;
                                         }
                                     }
                                 }
                                 else{
-                                    System.out.println((i + " " + character + " R|" + split[0] + "=" + sb.toString()));
+                                    //System.out.println((i + " " + character + " R|" + split[0] + "=" + sb.toString()));
                                     Actions.put(i + " " + character, " R|" + split[0] + "=" + sb.toString());
                                 }
                             }
@@ -152,14 +151,14 @@ public class GSA2 {
                             String[] transSplit = transition.split(" ");
                             if(transition.startsWith(String.valueOf(i)) && transSplit[1].equals(currentRightSide.get(Integer.parseInt(split[2])))){
                                 if(Actions.containsKey(i + " " + currentRightSide.get(Integer.parseInt(split[2]))) && Actions.get(i + " " + currentRightSide.get(Integer.parseInt(split[2]))).contains("A|")) {
-                                    System.err.println("Action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2] + " was removed because there was accept action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) +  Actions.get(i + " " + currentRightSide.get(Integer.parseInt(split[2]))));
+                                    //System.err.println("Action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2] + " was removed because there was accept action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) +  Actions.get(i + " " + currentRightSide.get(Integer.parseInt(split[2]))));
                                     continue;
                                 }
                                 else if(Actions.containsKey(i + " " + currentRightSide.get(Integer.parseInt(split[2])))){
-                                    System.err.println("Action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + Actions.get(i + " " + currentRightSide.get(Integer.parseInt(split[2]))) + " was removed because there is new move action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2]);
+                                    //System.err.println("Action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + Actions.get(i + " " + currentRightSide.get(Integer.parseInt(split[2]))) + " was removed because there is new move action: " + i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2]);
                                 }
                                 Actions.put(i + " " + currentRightSide.get(Integer.parseInt(split[2])), " M|" + transSplit[2]);
-                                System.out.println(i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2]);
+                                //System.out.println(i + " " + currentRightSide.get(Integer.parseInt(split[2])) + " M|" + transSplit[2]);
                             }
                         }
                     }
@@ -169,23 +168,23 @@ public class GSA2 {
                 writer.write(key + Actions.get(key) + "\n");
             }
             //New states
-            System.out.println("%X%X%X%X%X");
+            //System.out.println("%X%X%X%X%X");
             writer.write("%X%X%X%X%X\n");
             for(String transition : transitions){
                 String[] split = transition.split(" ");
                 if(!nonFinalChars.contains(split[1])) continue;
                 if(!nonFinalChars.contains(split[1])) continue;
-                System.out.println(transition);
+                //System.out.println(transition);
                 writer.write(transition + "\n");
             }
             //Sync chars
-            System.out.println("%X%X%X%X%X");
+            //System.out.println("%X%X%X%X%X");
             writer.write("%X%X%X%X%X\n");
             StringBuilder sb = new StringBuilder(syncChars.get(0));
             for (int i = 1; i < syncChars.size(); i++){
                 sb.append(" ").append(syncChars.get(i));
             }
-            System.out.println(sb.toString());
+            //System.out.println(sb.toString());
             writer.write(sb.toString());
             writer.close();
         }catch(Exception e){
