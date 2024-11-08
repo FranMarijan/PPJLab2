@@ -18,5 +18,5 @@ state - int
 character - final character
 ACTION_LETTERS:
   A - accept() // no parameters
-  R - reduce(production) parameters: <leftCharacter>=<Character1>...someNonFinalCharacter...<CharacterN> // reduction that needs to be done
+  R - reduce(production) parameters: <leftCharacter>=<Character1>,...,someNonFinalCharacter,...,<CharacterN> // reduction that needs to be done
   M = move(state) parameters: state // state to move to the stack
