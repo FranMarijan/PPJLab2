@@ -1,5 +1,5 @@
 // Action table
-state character ACTION_LETTER|optionalParameters // there is always "|" sign after ACTION_LETTER
+state character ACTION_LETTER/optionalParameters // there is always "/" sign after ACTION_LETTER
 .
 .
 .
