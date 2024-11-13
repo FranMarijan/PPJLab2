@@ -70,6 +70,7 @@ public class SA {
             if(inputIndex < input.size()) {
                 symbol = input.get(inputIndex);
             }
+
             int lineNumber = Integer.parseInt(symbol[1]);
             String action = actiontable.get(new AbstractMap.SimpleEntry<>(state, symbol[0]));
 
@@ -82,6 +83,7 @@ public class SA {
                 inputIndex++;
                 //System.out.println("Stvorio sam list " + symbol[2] +" "+ lineNumber +" "+ symbol[0] + ";");
             }else if (action != null && action.startsWith("R")) {
+                //System.out.println("stanje: " + state + " simbol " + symbol[0] + " " + action);
                 String reduction = action.split("/")[1];
                 String[] parts = reduction.split("=");
                 String leftSide = parts[0].trim();
@@ -90,13 +92,19 @@ public class SA {
                 TreeNode node = new TreeNode(leftSide, lineNumber, null);
 
                 String[] rightSymbols = rightSide.split(",");
-                for (String symbols : rightSymbols) {
-                    symbolStack.pop();
-                    stateStack.pop();
-                    TreeNode child = nodeStack.pop();
-                    node.addChild(child);
-                    //System.out.println("Dodali smo dijete " + child + " u " + node);
+                if (rightSymbols.length == 1 && rightSymbols[0].equals("$")) {
+                    TreeNode epsilonNode = new TreeNode("$", lineNumber, null);
+                    node.addChild(epsilonNode);
+                } else {
+                    for (String symbols : rightSymbols) {
+                        symbolStack.pop();
+                        stateStack.pop();
+                        TreeNode child = nodeStack.pop();
+                        node.addChild(child);
+                        //System.out.println("Dodali smo dijete " + child + " u " + node);
+                    }
                 }
+
                 //System.out.println("Pushamo leftside u symolsStack " + leftSide);
                 symbolStack.push(leftSide);
                 int currentState = stateStack.peek();
@@ -113,14 +121,60 @@ public class SA {
                 //System.out.println("Stvorio sam korijen " + rootSymbol +" "+ symbol[0] + ";");
                 root.dfs();
                 break;
+            } else {
+                // Error handling: print error message and recover
+                System.out.println("Pogreška u retku " + lineNumber + ": Očekivani znakovi su " + expectedSymbols(state)
+                        + ". Pročitani znak je '" + symbol[0] + "' (" + symbol[2] + ").");
+
+                // Skip until a synchronization symbol is found
+                inputIndex = skipToNextSyncSymbol(inputIndex);
+
+                if (inputIndex >= input.size()) break;
+
+                // Pop states until we find a state with a transition for sync symbol
+                String syncSymbol = input.get(inputIndex)[0];
+                while (!stateStack.empty() && actiontable.get(new AbstractMap.SimpleEntry<>(stateStack.peek(), syncSymbol)) == null) {
+                    stateStack.pop();
+                    if (!symbolStack.isEmpty()) symbolStack.pop();
+                    if (!nodeStack.isEmpty()) nodeStack.pop();
+                }
+
+                if (stateStack.isEmpty()) {
+                    System.out.println("Nepostojeci tranzicija za sinkronizacijski znak. Parsiranje prekinuto.");
+                    break;
+                }
             }
         }
     }
+    // Helper method to find expected symbols based on current state
+    private String expectedSymbols(int state) {
+        List<String> expected = new ArrayList<>();
+        for (Map.Entry<AbstractMap.SimpleEntry<Integer, String>, String> entry : actiontable.entrySet()) {
+            if (entry.getKey().getKey() == state) {
+                expected.add(entry.getKey().getValue());
+            }
+        }
+        return expected.toString();
+    }
 
+    // Helper method to skip to the next synchronization symbol in input
+    private int skipToNextSyncSymbol(int inputIndex) {
+        while (inputIndex < input.size()) {
+            String[] symbol = input.get(inputIndex);
+            for (String syncSymbol : sync) {
+                if (symbol[0].equals(syncSymbol)) {
+                    return inputIndex;
+                }
+            }
+            inputIndex++;
+        }
+        return inputIndex;
+    }
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         Map<AbstractMap.SimpleEntry<Integer, String>, String> actiontable = new HashMap<>();
+        long startTime = System.currentTimeMillis();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             if(line.contains("%X%X%X%X%X")) break;
@@ -146,11 +200,15 @@ public class SA {
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             if(line.isEmpty()) break;
-            String[] s = line.split(" ");
+            String[] s = line.split(" ", 3);
             //System.out.println(s[0] + "---" + s[1] + "---" + s[2]);
             input.add(s);
 
         }
+
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
+        System.out.println("Process ran for " + elapsedTime + " milliseconds.");
 
         SA LRparser = new SA(actiontable, newstates, sync, input);
         LRparser.parse();
